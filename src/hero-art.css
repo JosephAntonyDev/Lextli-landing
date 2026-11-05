@@ -1,0 +1,287 @@
+/* Card, greeting and vocabulary each have a stable layout area.
+   The greeting and Loti share a square coordinate system at every breakpoint. */
+.hero-art {
+  --tilt: 0deg;
+  --card-width: 350px;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  height: auto;
+  width: 100%;
+  max-width: 520px;
+  margin-inline: auto;
+  padding: 28px 24px 0;
+  gap: 43px;
+}
+.art-orbits {
+  position: absolute;
+  inset: 0 0 90px;
+  overflow: clip;
+  z-index: -1;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+}
+.art-orbit {
+  position: absolute;
+  width: 91%;
+  height: 92%;
+  border: 1px solid #b8957829;
+  border-radius: 50%;
+  transform: rotate(-24deg);
+}
+.orbit-two {
+  width: 85%;
+  height: 100%;
+  transform: rotate(26deg);
+}
+.loteria-card {
+  position: relative;
+  flex: none;
+  width: min(100%, var(--card-width));
+  padding: 13px;
+  background: #faecd9;
+  border: 1px solid #bb8065;
+  box-shadow:
+    6px 9px 0 #eadfcd,
+    7px 10px 0 #d4c1a6,
+    12px 20px 36px #754a3212;
+  transform: rotate(calc(3deg + var(--tilt)));
+  transition: transform 220ms ease-out;
+}
+.card-scene {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  overflow: hidden;
+  margin-top: 8px;
+  background: #e9d3b4;
+  border-radius: 34% 34% 0 0;
+}
+.card-scene .sun-disc {
+  width: 70%;
+  height: 70%;
+  top: 15%;
+}
+.hero-loti {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: none;
+  filter: drop-shadow(0 7px 1px #97734912);
+}
+.hello-note {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  overflow: visible;
+}
+.hello-note text {
+  fill: var(--terracotta);
+  font:
+    18px "Fraunces",
+    serif;
+  letter-spacing: -0.4px;
+}
+.hello-note path {
+  fill: none;
+  stroke: var(--terracotta);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.hero-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 22px;
+  width: min(100%, calc(var(--card-width) + 16px));
+  position: relative;
+}
+.floating-word {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px 17px;
+  border: 1px solid #d8c9b7;
+  border-radius: 12px;
+  background: #fffaf0;
+  box-shadow: 0 6px 18px #402e2809;
+  transform: none;
+  flex: 1;
+}
+.floating-word strong {
+  white-space: nowrap;
+}
+.floating-word .word-check {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.floating-word .word-icon {
+  flex-shrink: 0;
+}
+.round-stamp {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  border: 1px dashed #a8443080;
+  outline: 1px solid #a8443026;
+  outline-offset: 4px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--terracotta);
+  font-size: 6px;
+  letter-spacing: 1px;
+  line-height: 1.2;
+  transform: rotate(9deg);
+}
+.round-stamp br {
+  display: none;
+}
+.round-stamp svg {
+  width: 16px;
+  height: 16px;
+  margin: 6px;
+}
+@media (max-width: 1100px) {
+  .hero-art {
+    --card-width: 305px;
+    padding-inline: 19px;
+    gap: 37px;
+  }
+  .hero-details {
+    gap: 17px;
+  }
+  .floating-word {
+    gap: 8px;
+    padding: 12px;
+  }
+  .floating-word strong {
+    font-size: 21px;
+  }
+  .floating-word strong span {
+    font-size: 10px;
+    margin-left: 3px;
+  }
+  .round-stamp {
+    width: 60px;
+    height: 60px;
+    font-size: 5px;
+  }
+}
+@media (min-width: 621px) and (max-width: 800px) {
+  .hero-art {
+    --card-width: 260px;
+    padding-inline: 15px;
+  }
+  .floating-word {
+    padding: 10px;
+    gap: 7px;
+  }
+  .floating-word .word-icon {
+    width: 29px;
+    height: 34px;
+  }
+  .floating-word .word-check {
+    display: none;
+  }
+  .round-stamp {
+    width: 48px;
+    height: 48px;
+    font-size: 4px;
+  }
+  .round-stamp svg {
+    width: 13px;
+    height: 13px;
+    margin: 4px;
+  }
+}
+@media (max-width: 620px) {
+  .hero-art {
+    --card-width: 298px;
+    max-width: 365px;
+    padding: 16px 18px 0;
+    margin-top: 0;
+    gap: 33px;
+  }
+  .loteria-card {
+    padding: 11px;
+  }
+  .hero-details {
+    gap: 17px;
+  }
+  .floating-word {
+    padding: 11px;
+    gap: 9px;
+  }
+  .floating-word strong {
+    font-size: 22px;
+  }
+  .floating-word .word-icon {
+    width: 34px;
+    height: 36px;
+  }
+  .floating-word .word-check {
+    width: 18px;
+    height: 18px;
+  }
+  .round-stamp {
+    width: 57px;
+    height: 57px;
+    font-size: 5px;
+  }
+}
+@media (max-width: 360px) {
+  .hero-art {
+    padding-inline: 12px;
+    gap: 30px;
+  }
+  .hero-details {
+    gap: 14px;
+  }
+  .floating-word {
+    padding: 10px;
+    gap: 7px;
+  }
+  .floating-word strong {
+    font-size: 21px;
+  }
+  .floating-word strong span {
+    font-size: 9px;
+  }
+  .floating-word .word-check {
+    display: none;
+  }
+  .round-stamp {
+    width: 48px;
+    height: 48px;
+    font-size: 4px;
+  }
+  .round-stamp svg {
+    width: 13px;
+    height: 13px;
+    margin: 4px;
+  }
+}
+:root[data-motion="off"] .loteria-card {
+  transform: rotate(3deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .loteria-card {
+    transform: rotate(3deg);
+  }
+}
