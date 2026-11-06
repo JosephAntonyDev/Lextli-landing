@@ -2,6 +2,7 @@ import type { MessageKey } from "./messages";
 
 // [Português, Italiano, Deutsch]. TypeScript requires every source key.
 export const extraMessages = {
+  "Próximamente en": ["Em breve no", "Presto su", "Demnächst bei"],
   "Volver arriba": ["Voltar ao topo", "Torna in alto", "Nach oben"],
   "Tu mundo, tus palabras.": [
     "Seu mundo, suas palavras.",

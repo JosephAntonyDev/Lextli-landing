@@ -15,7 +15,6 @@ import {
   Pause,
   Play,
   RotateCcw,
-  Smartphone,
   Sprout,
   Volume2,
   WifiOff,
@@ -33,6 +32,31 @@ const thinkingImages = {
   still: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(thinkingStillSvg)}`,
 };
 const MotionContext = createContext(true);
+function GooglePlayButton({ onClick }: { onClick: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <button
+      type="button"
+      className="google-play-button"
+      onClick={onClick}
+      aria-label={`Google Play · ${t("Estado de la beta de Lextli")}`}
+    >
+      <svg
+        width="30"
+        height="34"
+        viewBox="0 0 30 34"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path d="M2 2 17 17 2 32Z M4 1 22 11 18.5 15.5Z M20 17 24 13 29 16Q30 17 29 18L24 21Z M18.5 18.5 22 23 4 33Z" />
+      </svg>
+      <span>
+        <small>{t("Próximamente en")}</small>
+        <strong>Google Play</strong>
+      </span>
+    </button>
+  );
+}
 function LotiImage({
   name,
   ...props
@@ -351,50 +375,57 @@ function Landing() {
         {" "}
         {t("Saltar al contenido")}{" "}
       </a>
-      <header className="site-header">
-        <a
-          ref={homeLink}
-          className="brand"
-          href="#"
-          aria-label={t("Lextli, inicio")}
-        >
-          <img src="/brand/wordmark.svg" alt="lextli" width="118" height="44" />
-        </a>
-        <nav
-          className={menuOpen ? "main-nav open" : "main-nav"}
-          id="navigation"
-          aria-label={t("Navegación principal")}
-        >
-          <a href="#como-funciona" onClick={() => setMenuOpen(false)}>
-            {" "}
-            {t("Así se aprende")}{" "}
-          </a>
-          <a href="#loti" onClick={() => setMenuOpen(false)}>
-            {" "}
-            {t("Conoce a Loti")}{" "}
-          </a>
-          <a href="#preguntas" onClick={() => setMenuOpen(false)}>
-            {" "}
-            {t("Tus preguntas")}{" "}
-          </a>
-        </nav>
-        <div className="header-actions">
-          <LanguagePicker />
-          <button className="button small primary" onClick={openBeta}>
-            {" "}
-            {t("Conoce la beta")} <ArrowUpRight size={16} />
-          </button>
-          <button
-            className="menu-toggle"
-            aria-label={menuOpen ? t("Cerrar menú") : t("Abrir menú")}
-            aria-expanded={menuOpen}
-            aria-controls="navigation"
-            onClick={() => setMenuOpen(!menuOpen)}
+      <div className="site-header-shell">
+        <header className="site-header">
+          <a
+            ref={homeLink}
+            className="brand"
+            href="#"
+            aria-label={t("Lextli, inicio")}
           >
-            {menuOpen ? <X /> : <Menu />}
-          </button>
-        </div>
-      </header>
+            <img
+              src="/brand/wordmark.svg"
+              alt="lextli"
+              width="118"
+              height="44"
+            />
+          </a>
+          <nav
+            className={menuOpen ? "main-nav open" : "main-nav"}
+            id="navigation"
+            aria-label={t("Navegación principal")}
+          >
+            <a href="#como-funciona" onClick={() => setMenuOpen(false)}>
+              {" "}
+              {t("Así se aprende")}{" "}
+            </a>
+            <a href="#loti" onClick={() => setMenuOpen(false)}>
+              {" "}
+              {t("Conoce a Loti")}{" "}
+            </a>
+            <a href="#preguntas" onClick={() => setMenuOpen(false)}>
+              {" "}
+              {t("Tus preguntas")}{" "}
+            </a>
+          </nav>
+          <div className="header-actions">
+            <LanguagePicker />
+            <button className="button small primary" onClick={openBeta}>
+              {" "}
+              {t("Conoce la beta")} <ArrowUpRight size={16} />
+            </button>
+            <button
+              className="menu-toggle"
+              aria-label={menuOpen ? t("Cerrar menú") : t("Abrir menú")}
+              aria-expanded={menuOpen}
+              aria-controls="navigation"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <X /> : <Menu />}
+            </button>
+          </div>
+        </header>
+      </div>
       <main id="contenido">
         <section ref={intro} className="hero wrap">
           <div className="hero-copy">
@@ -422,9 +453,7 @@ function Landing() {
                 {" "}
                 {t("Prueba tu primera palabra")} <ArrowRight size={19} />
               </a>
-              <button className="text-button" onClick={openBeta}>
-                <Smartphone size={18} /> {t("Para Android")}{" "}
-              </button>
+              <GooglePlayButton onClick={openBeta} />
             </div>
             <div className="hero-footnote">
               <span className="status-dot" />{" "}
@@ -894,10 +923,13 @@ function Landing() {
               <em>{t("mucho.")}</em>
             </h2>
             <p>{t("Empieza por una palabra. Lo demás, paso a paso.")}</p>
-            <a href="#prueba" className="button cream">
-              {" "}
-              {t("Vamos a empezar")} <ArrowRight size={20} />
-            </a>
+            <div className="closing-actions">
+              <a href="#prueba" className="button cream">
+                {" "}
+                {t("Vamos a empezar")} <ArrowRight size={20} />
+              </a>
+              <GooglePlayButton onClick={openBeta} />
+            </div>
             <span className="closing-small">
               {" "}
               {t("Con cariño, desde México. Con Loti, a donde quieras.")}{" "}

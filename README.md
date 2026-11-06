@@ -32,7 +32,9 @@ El resultado publicable está en `dist/`: no requiere servidor de aplicación, b
 - Capturas reales de la beta en un selector accesible con teclado.
 - Loti con libro, audífonos o cempasúchil seleccionables.
 - Preguntas frecuentes, promesa de aprendizaje gratuito y modal con estado de la beta.
-- Menú móvil, navegación por anclas, foco visible, diálogo nativo y control de animaciones.
+- Cabecera persistente en escritorio y móvil, con menú e idioma accesibles al desplazarse. Las anclas respetan la altura de la cabecera y el área segura del dispositivo.
+- Botones «Próximamente en Google Play» en portada y cierre: abren la modal existente de beta, sin enlazar a una descarga inexistente. Texto traducido a los doce idiomas.
+- Foco visible, diálogo nativo y control de animaciones.
 - Botón flotante «Volver arriba» al dejar atrás la portada, con etiquetas en los doce idiomas. Desplazamiento suave nativo, detección con `IntersectionObserver` sin listeners continuos de scroll y foco devuelto al enlace de inicio. Respeta movimiento reducido y la pausa manual; conserva espacio en el pie y los márgenes seguros de móvil.
 
 La práctica es una demostración local: no crea cuenta, no envía respuestas y no modifica progreso de la app. No hay formulario, analítica, cookies añadidas por la landing ni lista de espera. La infraestructura de hosting puede gestionar su propia autenticación y registros.

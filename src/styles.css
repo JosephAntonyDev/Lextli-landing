@@ -11,6 +11,7 @@
   font-display: swap;
 }
 :root {
+  --header-height: 99px;
   font-family: var(--lextli-body-font), sans-serif;
   color: var(--lextli-text);
   background: var(--lextli-background);
@@ -30,7 +31,9 @@
 }
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 110px;
+  scroll-padding-top: calc(
+    var(--header-height) + env(safe-area-inset-top) + 16px
+  );
 }
 body {
   margin: 0;
@@ -179,7 +182,7 @@ p {
   background: var(--ink);
   color: var(--paper);
   padding: 15px;
-  z-index: 30;
+  z-index: 50;
   transform: translateY(-150%);
 }
 .skip-link:focus {
@@ -196,6 +199,62 @@ p {
   position: relative;
   z-index: 10;
   gap: 24px;
+}
+.site-header-shell {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  padding-top: env(safe-area-inset-top);
+  background: var(--paper);
+  box-shadow: 0 3px 16px #402e2806;
+}
+.google-play-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 58px;
+  max-width: 100%;
+  padding: 10px 18px;
+  border: 1px solid #d6c6b0;
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 3px 0 #402e2814;
+  text-align: left;
+  transition:
+    transform 180ms var(--ease),
+    box-shadow 180ms var(--ease);
+}
+.google-play-button > svg {
+  flex: none;
+}
+.google-play-button small {
+  display: block;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.google-play-button strong {
+  display: block;
+  font-size: 20px;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+}
+@media (hover: hover) {
+  .google-play-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0 #402e2814;
+  }
+}
+.google-play-button:active {
+  transform: translateY(1px);
+}
+.closing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
 }
 .brand {
   display: inline-flex;
@@ -1385,6 +1444,9 @@ p {
   }
 }
 @media (max-width: 800px) {
+  :root {
+    --header-height: 82px;
+  }
   .site-header {
     width: calc(100% - 40px);
     height: 82px;
@@ -1606,8 +1668,8 @@ p {
   }
 }
 @media (max-width: 620px) {
-  html {
-    scroll-padding-top: 24px;
+  :root {
+    --header-height: 77px;
   }
   .wrap {
     width: calc(100% - 40px);
@@ -1633,14 +1695,14 @@ p {
   .main-nav {
     display: none;
     position: absolute;
-    top: 76px;
+    top: 100%;
     left: -20px;
     right: -20px;
     background: var(--paper);
     padding: 15px 24px 22px;
     border-bottom: 1px solid var(--line);
     box-shadow: 0 15px 25px #402e2810;
-    max-height: calc(100dvh - 77px);
+    max-height: calc(100dvh - var(--header-height) - env(safe-area-inset-top));
     overflow-y: auto;
     overscroll-behavior: contain;
     font-size: 14px;

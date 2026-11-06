@@ -2,6 +2,13 @@ import type { MessageKey } from "./messages";
 
 // Japanese, Korean, Simplified Chinese, Indonesian, Khmer.
 export const asiaMessages = {
+  "Próximamente en": [
+    "近日公開",
+    "출시 예정",
+    "即将上线",
+    "Segera hadir di",
+    "ឆាប់ៗនេះនៅ",
+  ],
   "Volver arriba": [
     "ページの先頭へ",
     "맨 위로",

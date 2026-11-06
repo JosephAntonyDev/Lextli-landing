@@ -203,7 +203,7 @@
 @media (max-width: 620px) {
   .language-popover {
     position: fixed;
-    top: 76px;
+    top: calc(var(--header-height) + env(safe-area-inset-top) + 8px);
     left: 16px;
     right: 16px;
     width: auto;
