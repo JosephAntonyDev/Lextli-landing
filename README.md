@@ -33,6 +33,7 @@ El resultado publicable está en `dist/`: no requiere servidor de aplicación, b
 - Loti con libro, audífonos o cempasúchil seleccionables.
 - Preguntas frecuentes, promesa de aprendizaje gratuito y modal con estado de la beta.
 - Menú móvil, navegación por anclas, foco visible, diálogo nativo y control de animaciones.
+- Botón flotante «Volver arriba» al dejar atrás la portada, con etiquetas en los doce idiomas. Desplazamiento suave nativo, detección con `IntersectionObserver` sin listeners continuos de scroll y foco devuelto al enlace de inicio. Respeta movimiento reducido y la pausa manual; conserva espacio en el pie y los márgenes seguros de móvil.
 
 La práctica es una demostración local: no crea cuenta, no envía respuestas y no modifica progreso de la app. No hay formulario, analítica, cookies añadidas por la landing ni lista de espera. La infraestructura de hosting puede gestionar su propia autenticación y registros.
 

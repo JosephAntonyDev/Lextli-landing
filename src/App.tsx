@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import type { ImgHTMLAttributes } from "react";
 import {
   ArrowDown,
+  ArrowUp,
   ArrowRight,
   ArrowUpRight,
   BookOpen,
@@ -274,6 +275,9 @@ export default function App() {
 function Landing() {
   const { t, locale } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [pastIntro, setPastIntro] = useState(false);
+  const intro = useRef<HTMLElement>(null);
+  const homeLink = useRef<HTMLAnchorElement>(null);
   const [motion, setMotion] = useState(
     () => !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
@@ -284,6 +288,13 @@ function Landing() {
   const heroArt = useRef<HTMLDivElement>(null);
   const pointerFrame = useRef<number | null>(null);
   const pointerTilt = useRef(0);
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      setPastIntro(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+    });
+    if (intro.current) observer.observe(intro.current);
+    return () => observer.disconnect();
+  }, []);
   useEffect(
     () => () => {
       if (pointerFrame.current !== null)
@@ -341,7 +352,12 @@ function Landing() {
         {t("Saltar al contenido")}{" "}
       </a>
       <header className="site-header">
-        <a className="brand" href="#" aria-label={t("Lextli, inicio")}>
+        <a
+          ref={homeLink}
+          className="brand"
+          href="#"
+          aria-label={t("Lextli, inicio")}
+        >
           <img src="/brand/wordmark.svg" alt="lextli" width="118" height="44" />
         </a>
         <nav
@@ -380,7 +396,7 @@ function Landing() {
         </div>
       </header>
       <main id="contenido">
-        <section className="hero wrap">
+        <section ref={intro} className="hero wrap">
           <div className="hero-copy">
             <div className="eyebrow">
               <span className="tiny-flower">✳</span>{" "}
@@ -924,6 +940,25 @@ function Landing() {
           </span>
         </div>
       </footer>
+      <button
+        type="button"
+        className="back-to-top"
+        data-visible={pastIntro && !menuOpen}
+        aria-hidden={!pastIntro || menuOpen}
+        tabIndex={pastIntro && !menuOpen ? 0 : -1}
+        aria-label={t("Volver arriba")}
+        title={t("Volver arriba")}
+        onClick={() => {
+          homeLink.current?.focus({ preventScroll: true });
+          window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: motion ? "smooth" : "instant",
+          });
+        }}
+      >
+        <ArrowUp size={22} strokeWidth={1.8} aria-hidden="true" />
+      </button>
       <dialog
         ref={modal}
         className="beta-dialog"

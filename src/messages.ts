@@ -1,6 +1,7 @@
 // Spanish is the source language. Each entry is [English, French, Russian].
 // Keep every locale complete when adding copy; no runtime translation service.
 export const messages = {
+  "Volver arriba": ["Back to top", "Retour en haut", "Наверх"],
   "Tu mundo, tus palabras.": [
     "Your world, your words.",
     "Votre monde, vos mots.",

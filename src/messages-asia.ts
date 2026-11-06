@@ -2,6 +2,13 @@ import type { MessageKey } from "./messages";
 
 // Japanese, Korean, Simplified Chinese, Indonesian, Khmer.
 export const asiaMessages = {
+  "Volver arriba": [
+    "ページの先頭へ",
+    "맨 위로",
+    "返回顶部",
+    "Kembali ke atas",
+    "ត្រឡប់ទៅដើមទំព័រ",
+  ],
   "Tu mundo, tus palabras.": [
     "あなたの世界、あなたの言葉。",
     "나의 세상, 나의 언어.",

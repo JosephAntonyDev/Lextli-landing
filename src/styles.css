@@ -2233,6 +2233,61 @@ p {
 .reveal.revealed {
   transform: none;
 }
+.back-to-top {
+  position: fixed;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 25;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid var(--terracotta);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--terracotta);
+  box-shadow:
+    0 4px 0 #a8443020,
+    0 8px 24px #402e2814;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition:
+    opacity 180ms ease,
+    transform 220ms var(--ease),
+    visibility 220ms;
+}
+.back-to-top[data-visible="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+@media (hover: hover) {
+  .back-to-top:hover {
+    background: var(--terracotta);
+    color: var(--paper);
+    transform: translateY(-3px);
+  }
+}
+.back-to-top:active {
+  transform: translateY(1px);
+}
+.footer-bottom {
+  padding-right: 64px;
+}
+@media (max-width: 620px) {
+  .back-to-top {
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(16px, env(safe-area-inset-bottom));
+  }
+  .footer-bottom {
+    padding-bottom: 76px;
+    padding-right: 0;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     transform: none;
