@@ -2025,12 +2025,10 @@ p {
     margin-bottom: 0;
   }
   .faq-heading img {
-    position: absolute;
-    right: 0;
-    bottom: -5px;
+    display: block;
     width: 100px;
     height: 100px;
-    margin: 0;
+    margin: 18px 12px 0 auto;
   }
   .faq-list summary {
     font-size: 12px;

@@ -1,5 +1,51 @@
 /* Card, greeting and vocabulary each have a stable layout area.
    The greeting and Loti share a square coordinate system at every breakpoint. */
+.round-stamp {
+  flex: 0 0 72px;
+  width: 72px;
+  height: 72px;
+  padding: 9px 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  border: 1px dashed #a8443080;
+  outline: 1px solid #a8443026;
+  outline-offset: 4px;
+  border-radius: 50%;
+  color: var(--terracotta);
+  transform: rotate(9deg);
+}
+.round-stamp > span {
+  display: block;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 6px;
+  line-height: 1;
+  letter-spacing: 0.55px;
+}
+.round-stamp > svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+@media (max-width: 800px) {
+  .round-stamp {
+    flex-basis: 62px;
+    width: 62px;
+    height: 62px;
+    gap: 4px;
+  }
+  .round-stamp > span {
+    font-size: 5.5px;
+    letter-spacing: 0.35px;
+  }
+  .round-stamp > svg {
+    width: 14px;
+    height: 14px;
+  }
+}
 .hero-art {
   --tilt: 0deg;
   --card-width: 350px;
@@ -131,32 +177,6 @@
 .floating-word .word-icon {
   flex-shrink: 0;
 }
-.round-stamp {
-  flex: none;
-  width: 72px;
-  height: 72px;
-  border: 1px dashed #a8443080;
-  outline: 1px solid #a8443026;
-  outline-offset: 4px;
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--terracotta);
-  font-size: 6px;
-  letter-spacing: 1px;
-  line-height: 1.2;
-  transform: rotate(9deg);
-}
-.round-stamp br {
-  display: none;
-}
-.round-stamp svg {
-  width: 16px;
-  height: 16px;
-  margin: 6px;
-}
 @media (max-width: 1100px) {
   .hero-art {
     --card-width: 305px;
@@ -177,11 +197,6 @@
     font-size: 10px;
     margin-left: 3px;
   }
-  .round-stamp {
-    width: 60px;
-    height: 60px;
-    font-size: 5px;
-  }
 }
 @media (min-width: 621px) and (max-width: 800px) {
   .hero-art {
@@ -198,16 +213,6 @@
   }
   .floating-word .word-check {
     display: none;
-  }
-  .round-stamp {
-    width: 48px;
-    height: 48px;
-    font-size: 4px;
-  }
-  .round-stamp svg {
-    width: 13px;
-    height: 13px;
-    margin: 4px;
   }
 }
 @media (max-width: 620px) {
@@ -239,11 +244,6 @@
     width: 18px;
     height: 18px;
   }
-  .round-stamp {
-    width: 57px;
-    height: 57px;
-    font-size: 5px;
-  }
 }
 @media (max-width: 360px) {
   .hero-art {
@@ -265,16 +265,6 @@
   }
   .floating-word .word-check {
     display: none;
-  }
-  .round-stamp {
-    width: 48px;
-    height: 48px;
-    font-size: 4px;
-  }
-  .round-stamp svg {
-    width: 13px;
-    height: 13px;
-    margin: 4px;
   }
 }
 :root[data-motion="off"] .loteria-card {

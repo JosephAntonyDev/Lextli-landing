@@ -1,0 +1,159 @@
+.sound-button[aria-busy="true"] {
+  opacity: 0.65;
+}
+.audio-status {
+  display: block;
+  min-height: 1.5em;
+  margin-top: 6px;
+}
+.hero-copy,
+.app-copy,
+.demo-copy,
+.loti-copy,
+.section-heading > div {
+  min-width: 0;
+}
+html:not([lang="es"]) .hero h1 {
+  font-size: clamp(3rem, 5.5vw, 5.8rem);
+}
+html[lang="ru"] {
+  font-family: "DM Sans", "Segoe UI", sans-serif;
+}
+html[lang="ru"] h1,
+html[lang="ru"] h2,
+html[lang="ru"] h3,
+html[lang="ru"] .card-title {
+  font-family: Georgia, "Times New Roman", serif;
+}
+html[lang="ru"] .hero h1 {
+  font-size: clamp(2.6rem, 4.8vw, 5.1rem);
+}
+.card-heading > span:nth-child(2) {
+  text-align: center;
+}
+@media (max-width: 1100px) {
+  .site-header {
+    gap: 14px;
+  }
+  .main-nav {
+    gap: 16px;
+  }
+}
+@media (min-width: 769px) and (max-width: 1100px) {
+  html:not([lang="es"]) .main-nav {
+    font-size: 12px;
+  }
+  html:not([lang="es"]) .site-header .brand img {
+    width: 94px;
+  }
+}
+@media (max-width: 620px) {
+  .site-header .header-actions {
+    gap: 7px;
+  }
+  .site-header .brand img {
+    width: 92px;
+  }
+  .language-trigger {
+    padding: 0 7px;
+    gap: 4px;
+  }
+  .language-trigger > svg {
+    width: 15px;
+  }
+  .header-actions .button {
+    font-size: 11px;
+    padding-inline: 9px;
+  }
+  html:not([lang="es"]) .hero h1 {
+    font-size: clamp(2.8rem, 10vw, 4.4rem);
+  }
+  html[lang="ru"] .hero h1 {
+    font-size: clamp(2.5rem, 9vw, 4rem);
+  }
+  html:not([lang="es"]) .section-heading h2,
+  html:not([lang="es"]) .demo-copy h2,
+  html:not([lang="es"]) .app-copy h2,
+  html:not([lang="es"]) .manifesto h2 {
+    font-size: clamp(1.9rem, 7.5vw, 3rem);
+  }
+}
+@media (max-width: 380px) {
+  .site-header .header-actions > .button {
+    display: none;
+  }
+}
+
+/* Use local script-aware fonts; avoid downloading large CJK font bundles. */
+html:lang(ja),
+.language-option:lang(ja) {
+  --lextli-body-font:
+    "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo;
+  --locale-display-font:
+    "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
+}
+html:lang(ko),
+.language-option:lang(ko) {
+  --lextli-body-font: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic";
+  --locale-display-font: "Noto Serif KR", "AppleMyungjo", Batang, serif;
+}
+html:lang(zh),
+.language-option:lang(zh) {
+  --lextli-body-font: "Noto Sans SC", "PingFang SC", "Microsoft YaHei";
+  --locale-display-font: "Noto Serif SC", "Songti SC", SimSun, serif;
+}
+html:lang(km),
+.language-option:lang(km) {
+  --lextli-body-font:
+    "Noto Sans Khmer", "Khmer Sangam MN", "Leelawadee UI", "Khmer OS";
+  --locale-display-font: var(--lextli-body-font), sans-serif;
+}
+.language-option:is(:lang(ja), :lang(ko), :lang(zh), :lang(km)),
+.language-option:is(:lang(ja), :lang(ko), :lang(zh), :lang(km))
+  .language-option__symbol {
+  font-family: var(--lextli-body-font), sans-serif;
+}
+html:is(:lang(ja), :lang(ko), :lang(zh), :lang(km)) {
+  line-break: strict;
+  overflow-wrap: anywhere;
+}
+html:is(:lang(ja), :lang(ko), :lang(zh), :lang(km))
+  :is(
+    h1,
+    h2,
+    h3,
+    em,
+    .card-title > span,
+    .resume-card strong,
+    .demo-note > span,
+    .offline-note strong,
+    .loti-signature,
+    .loti-stage-note,
+    .language-popover__heading strong,
+    .hello-note text
+  ) {
+  font-family: var(--locale-display-font);
+  font-style: normal;
+  letter-spacing: normal;
+  line-height: 1.4;
+}
+html:is(:lang(ja), :lang(ko), :lang(zh), :lang(km)) .hero h1 {
+  font-size: clamp(2rem, 4.5vw, 4.6rem);
+  line-height: 1.35;
+}
+html:lang(km) :is(p, button, summary, .eyebrow, .language-option__copy strong) {
+  line-height: 1.8;
+  letter-spacing: normal;
+}
+html:lang(km) .round-stamp > span {
+  line-height: 1.6;
+  letter-spacing: normal;
+}
+@media (max-width: 620px) {
+  html:is(:lang(ja), :lang(ko), :lang(zh), :lang(km)) .hero h1 {
+    font-size: clamp(1.9rem, 8vw, 3rem);
+  }
+  html:is(:lang(ja), :lang(ko), :lang(zh), :lang(km)) .faq-heading h2 {
+    font-size: clamp(1.7rem, 7vw, 2.4rem);
+  }
+}

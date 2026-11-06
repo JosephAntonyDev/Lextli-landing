@@ -21,13 +21,28 @@ import {
   X,
 } from "lucide-react";
 
-const loti = (name: string) => `/loti/${name}.svg`;
+import { LocaleProvider, LanguagePicker, useTranslation } from "./i18n";
+import { useSpeech } from "./useSpeech";
+import { PixelPreview } from "./PixelPreview";
+
+import thinkingSvg from "./assets/loti/expression-thinking.svg?raw";
+import thinkingStillSvg from "./assets/loti/expression-thinking-still.svg?raw";
+const thinkingImages = {
+  animated: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(thinkingSvg)}`,
+  still: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(thinkingStillSvg)}`,
+};
 const MotionContext = createContext(true);
-function LotiImage({ src, ...props }: ImgHTMLAttributes<HTMLImageElement>) {
+function LotiImage({
+  name,
+  ...props
+}: Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> & { name: string }) {
   const motion = useContext(MotionContext);
-  return (
-    <img {...props} src={motion ? src : src?.replace(".svg", "-still.svg")} />
-  );
+  // Bundle the FAQ illustration so a late scroll needs no new image request.
+  const src =
+    name === "expression-thinking"
+      ? thinkingImages[motion ? "animated" : "still"]
+      : `/loti/${name}${motion ? "" : "-still"}.svg`;
+  return <img {...props} src={src} />;
 }
 const lessons = [
   {
@@ -106,51 +121,41 @@ const faqs = [
 ];
 
 function Demo() {
+  const { t } = useTranslation();
+  const audio = useSpeech();
   const [step, setStep] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [done, setDone] = useState(false);
-  const [audioStatus, setAudioStatus] = useState("");
+
   const nextButton = useRef<HTMLButtonElement>(null);
   const questionTitle = useRef<HTMLHeadingElement>(null);
   const lesson = lessons[step];
   const correct = selected === lesson.answer;
-  useEffect(
-    () => () => {
-      window.speechSynthesis?.cancel();
-    },
-    [],
-  );
-  function speak() {
-    if (!("speechSynthesis" in window)) {
-      setAudioStatus(
-        "Este navegador no ofrece lectura de voz. Puedes leer la frase.",
-      );
-      return;
-    }
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(lesson.sentence);
-    utterance.lang = "en-US";
-    utterance.rate = 0.85;
-    utterance.onerror = () =>
-      setAudioStatus(
-        "No se pudo reproducir. La frase sigue disponible para leer.",
-      );
-    setAudioStatus("");
-    window.speechSynthesis.speak(utterance);
-  }
+  const audioStatus =
+    audio.status === "loading"
+      ? t("Preparando la voz…")
+      : audio.status === "playing"
+        ? t("Reproduciendo…")
+        : audio.status === "unavailable"
+          ? t("Este navegador no ofrece lectura de voz. Puedes leer la frase.")
+          : audio.status === "error"
+            ? t(
+                "La voz no respondió. Puedes volver a intentarlo o leer la frase.",
+              )
+            : "";
   function next() {
-    window.speechSynthesis?.cancel();
+    audio.reset();
     if (step === lessons.length - 1) setDone(true);
     else setStep(step + 1);
     setSelected(null);
-    setAudioStatus("");
+
     requestAnimationFrame(() => questionTitle.current?.focus());
   }
   return (
     <div className="demo-card">
       <div className="demo-top">
         <span>
-          <Sprout size={18} /> TU PRIMER BROTE
+          <Sprout size={18} /> {t("TU PRIMER BROTE")}{" "}
         </span>
         <span>{done ? 3 : step + 1} / 3</span>
       </div>
@@ -160,19 +165,20 @@ function Demo() {
       {done ? (
         <div className="demo-complete">
           <LotiImage
-            src={loti("expression-excited")}
-            alt="Loti celebra contigo"
+            name="expression-excited"
+            alt={t("Loti celebra contigo")}
             width="160"
             height="160"
             loading="lazy"
           />
           <h3 ref={questionTitle} tabIndex={-1}>
-            Ya empezó a crecer.
+            {" "}
+            {t("Ya empezó a crecer.")}{" "}
           </h3>
           <p>
-            Tres palabras, un pequeño comienzo.
-            <br />
-            Imagina todo lo que viene después.
+            {" "}
+            {t("Tres palabras, un pequeño comienzo.")} <br />{" "}
+            {t("Imagina todo lo que viene después.")}{" "}
           </p>
           <button
             className="button primary"
@@ -182,19 +188,23 @@ function Demo() {
               requestAnimationFrame(() => questionTitle.current?.focus());
             }}
           >
-            <RotateCcw size={18} /> Volver a practicar
+            <RotateCcw size={18} /> {t("Volver a practicar")}{" "}
           </button>
         </div>
       ) : (
         <>
           <div className="word-question">
-            <span>¿QUÉ SIGNIFICA…?</span>
+            <span>{t("¿QUÉ SIGNIFICA…?")}</span>
             <h3 ref={questionTitle} tabIndex={-1}>
               {lesson.word}
               <button
                 className="sound-button"
-                aria-label={`Escuchar ${lesson.sentence}`}
-                onClick={speak}
+                aria-label={`${t("Escuchar")} ${lesson.sentence}`}
+                onClick={() => audio.speak(lesson.sentence)}
+                aria-busy={audio.status === "loading"}
+                disabled={
+                  audio.status === "loading" || audio.status === "playing"
+                }
               >
                 <Volume2 size={22} />
               </button>
@@ -205,7 +215,7 @@ function Demo() {
             {lesson.choices.map((choice, i) => (
               <button
                 key={`${step}-${i}`}
-                aria-label={`${String.fromCharCode(65 + i)} ${choice}`}
+                aria-label={`${String.fromCharCode(65 + i)} ${t(choice)}`}
                 disabled={correct}
                 className={`answer ${selected === i ? (correct ? "correct" : "incorrect") : ""}`}
                 onClick={() => {
@@ -215,7 +225,7 @@ function Demo() {
                 }}
               >
                 <span>{String.fromCharCode(65 + i)}</span>
-                {choice}
+                {t(choice)}
                 {selected === i &&
                   (correct ? <Check size={20} /> : <RotateCcw size={18} />)}
               </button>
@@ -223,11 +233,15 @@ function Demo() {
           </div>
           <div className="answer-feedback" role="status">
             {selected === null
-              ? "Sin reloj. Sin presión. Dale una oportunidad."
+              ? t("Sin reloj. Sin presión. Dale una oportunidad.")
               : correct
-                ? `¡Eso es! ${lesson.translation}`
-                : "Casi. Prueba otra opción; aquí equivocarse también cuenta."}
-            {audioStatus && <small>{audioStatus}</small>}
+                ? `${t("¡Eso es!")} ${t(lesson.translation)}`
+                : t(
+                    "Casi. Prueba otra opción; aquí equivocarse también cuenta.",
+                  )}
+            {audioStatus && (
+              <small className="audio-status">{audioStatus}</small>
+            )}
           </div>
           {correct && (
             <button
@@ -235,20 +249,30 @@ function Demo() {
               className="button primary next-button"
               onClick={next}
             >
-              {step === 2 ? "Ver mi pequeño logro" : "Siguiente palabra"}
+              {step === 2 ? t("Ver mi pequeño logro") : t("Siguiente palabra")}
               <ArrowRight size={18} />
             </button>
           )}
         </>
       )}
       <div className="demo-caption">
-        Una muestra de práctica · No guarda progreso en la app
+        {" "}
+        {t("Una muestra de práctica · No guarda progreso en la app")}{" "}
       </div>
     </div>
   );
 }
 
 export default function App() {
+  return (
+    <LocaleProvider>
+      <Landing />
+    </LocaleProvider>
+  );
+}
+
+function Landing() {
+  const { t, locale } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [motion, setMotion] = useState(
     () => !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
@@ -313,34 +337,40 @@ export default function App() {
   return (
     <MotionContext.Provider value={motion}>
       <a href="#contenido" className="skip-link">
-        Saltar al contenido
+        {" "}
+        {t("Saltar al contenido")}{" "}
       </a>
       <header className="site-header">
-        <a className="brand" href="#" aria-label="Lextli, inicio">
+        <a className="brand" href="#" aria-label={t("Lextli, inicio")}>
           <img src="/brand/wordmark.svg" alt="lextli" width="118" height="44" />
         </a>
         <nav
           className={menuOpen ? "main-nav open" : "main-nav"}
           id="navigation"
-          aria-label="Navegación principal"
+          aria-label={t("Navegación principal")}
         >
           <a href="#como-funciona" onClick={() => setMenuOpen(false)}>
-            Así se aprende
+            {" "}
+            {t("Así se aprende")}{" "}
           </a>
           <a href="#loti" onClick={() => setMenuOpen(false)}>
-            Conoce a Loti
+            {" "}
+            {t("Conoce a Loti")}{" "}
           </a>
           <a href="#preguntas" onClick={() => setMenuOpen(false)}>
-            Tus preguntas
+            {" "}
+            {t("Tus preguntas")}{" "}
           </a>
         </nav>
         <div className="header-actions">
+          <LanguagePicker />
           <button className="button small primary" onClick={openBeta}>
-            Conoce la beta <ArrowUpRight size={16} />
+            {" "}
+            {t("Conoce la beta")} <ArrowUpRight size={16} />
           </button>
           <button
             className="menu-toggle"
-            aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+            aria-label={menuOpen ? t("Cerrar menú") : t("Abrir menú")}
             aria-expanded={menuOpen}
             aria-controls="navigation"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -353,35 +383,36 @@ export default function App() {
         <section className="hero wrap">
           <div className="hero-copy">
             <div className="eyebrow">
-              <span className="tiny-flower">✳</span> INGLÉS A TU RITMO, DE
-              VERDAD
+              <span className="tiny-flower">✳</span>{" "}
+              {t("INGLÉS A TU RITMO, DE VERDAD")}{" "}
             </div>
             <h1>
-              Un poquito
+              {" "}
+              {t("Un poquito")} <br /> {t("de inglés.")} <br />
+              <em>{t("Un mundo")}</em>
               <br />
-              de inglés.
-              <br />
-              <em>Un mundo</em>
-              <br />
-              <em>más tuyo.</em>
+              <em>{t("más tuyo.")}</em>
             </h1>
             <p>
-              Para esa canción, ese viaje, esa conversación.
-              <br className="desktop-break" /> Cultiva tu inglés con Loti. Sin
-              prisa, sin presión
-              <br className="desktop-break" /> y también sin conexión.
+              {" "}
+              {t("Para esa canción, ese viaje, esa conversación.")}{" "}
+              <br className="desktop-break" />{" "}
+              {t("Cultiva tu inglés con Loti. Sin prisa, sin presión")}{" "}
+              <br className="desktop-break" />{" "}
+              {t("y también sin conexión.")}{" "}
             </p>
             <div className="hero-buttons">
               <a href="#prueba" className="button primary">
-                Prueba tu primera palabra <ArrowRight size={19} />
+                {" "}
+                {t("Prueba tu primera palabra")} <ArrowRight size={19} />
               </a>
               <button className="text-button" onClick={openBeta}>
-                <Smartphone size={18} /> Para Android
+                <Smartphone size={18} /> {t("Para Android")}{" "}
               </button>
             </div>
             <div className="hero-footnote">
-              <span className="status-dot" /> Aprender es gratis. Crecer es a tu
-              ritmo.
+              <span className="status-dot" />{" "}
+              {t("Aprender es gratis. Crecer es a tu ritmo.")}{" "}
             </div>
           </div>
           <div
@@ -414,7 +445,7 @@ export default function App() {
             <div className="loteria-card">
               <div className="card-heading">
                 <span>01</span>
-                <span>UN PEQUEÑO COMIENZO</span>
+                <span>{t("UN PEQUEÑO COMIENZO")}</span>
                 <Flower2 size={20} />
               </div>
               <div className="card-scene">
@@ -426,14 +457,17 @@ export default function App() {
                   aria-hidden="true"
                 >
                   <text x="160" y="28" textAnchor="middle">
-                    ¡Hola, soy Loti!
+                    {" "}
+                    {t("¡Hola, soy Loti!")}{" "}
                   </text>
                   <path d="M121 36 C93 33 91 52 115 60 M107 53 L115 60 L105 62" />
                 </svg>
                 <LotiImage
                   className="hero-loti"
-                  src={loti("accessory-book")}
-                  alt="Loti, el ajolote rosa de Lextli, lee su pequeño libro"
+                  name="accessory-book"
+                  alt={t(
+                    "Loti, el ajolote rosa de Lextli, lee su pequeño libro",
+                  )}
                   width="380"
                   height="380"
                   fetchPriority="high"
@@ -451,8 +485,8 @@ export default function App() {
                 </svg>
               </div>
               <div className="card-title">
-                <span>EL COMIENZO</span>
-                <p>Lo pequeño también crece.</p>
+                <span>{t("EL COMIENZO")}</span>
+                <p>{t("Lo pequeño también crece.")}</p>
               </div>
             </div>
             <div className="hero-details">
@@ -464,36 +498,34 @@ export default function App() {
                   <strong>
                     grow <span>/ɡroʊ/</span>
                   </strong>
-                  <span>crecer · como tú</span>
+                  <span>{t("crecer · como tú")}</span>
                 </div>
                 <span className="word-check">
                   <Check size={15} />
                 </span>
               </div>
               <div className="round-stamp">
-                HECHO CON
-                <br />
-                <Heart size={20} />
-                <br />
-                EN MÉXICO
+                <span>{t("HECHO CON")}</span>
+                <Heart size={16} aria-hidden="true" />
+                <span>{t("EN MÉXICO")}</span>
               </div>
             </div>
           </div>
           <a className="scroll-cue" href="#como-funciona">
-            <ArrowDown size={16} /> Aquí empieza algo bonito
+            <ArrowDown size={16} /> {t("Aquí empieza algo bonito")}{" "}
           </a>
         </section>
         <div className="promise-strip">
           <span>
-            <WifiOff /> Tu inglés va contigo
+            <WifiOff /> {t("Tu inglés va contigo")}{" "}
           </span>
           <i>✳</i>
           <span>
-            <Heart /> Equivocarse también es aprender
+            <Heart /> {t("Equivocarse también es aprender")}{" "}
           </span>
           <i>✳</i>
           <span>
-            <Sprout /> Un poquito, todos los días
+            <Sprout /> {t("Un poquito, todos los días")}{" "}
           </span>
         </div>
         <section
@@ -503,83 +535,92 @@ export default function App() {
           <div className="section-heading reveal">
             <div>
               <span className="eyebrow">
-                01 / PEQUEÑOS PASOS, NUEVOS MUNDOS
+                {" "}
+                {t("01 / PEQUEÑOS PASOS, NUEVOS MUNDOS")}{" "}
               </span>
               <h2>
-                No necesitas más ganas.
-                <br />
-                Necesitas <em>otra forma.</em>
+                {" "}
+                {t("No necesitas más ganas.")} <br /> {t("Necesitas")}{" "}
+                <em>{t("otra forma.")}</em>
               </h2>
             </div>
             <p>
-              Menos «algún día voy a aprender».
-              <br />
-              Más palabras que empiezan a ser tuyas.
+              {" "}
+              {t("Menos «algún día voy a aprender».")} <br />{" "}
+              {t("Más palabras que empiezan a ser tuyas.")}{" "}
             </p>
           </div>
           <div className="method-grid">
             <article className="method-item reveal">
               <div className="method-illustration word-illustration">
                 <div className="mini-word">
-                  <span>una palabra, mil posibilidades</span>
+                  <span>{t("una palabra, mil posibilidades")}</span>
                   <strong>
                     hello<span>!</span>
                   </strong>
-                  <small>hola · tu primer puente</small>
+                  <small>{t("hola · tu primer puente")}</small>
                 </div>
                 <span className="little-flower">✳</span>
               </div>
-              <span className="step-label">01 · DESCUBRE</span>
-              <h3>Palabras con vida.</h3>
+              <span className="step-label">{t("01 · DESCUBRE")}</span>
+              <h3>{t("Palabras con vida.")}</h3>
               <p>
-                Inglés para entender lo que te rodea. Con ejemplos que le dan
-                sentido a cada palabra.
+                {" "}
+                {t(
+                  "Inglés para entender lo que te rodea. Con ejemplos que le dan sentido a cada palabra.",
+                )}{" "}
               </p>
             </article>
             <article className="method-item reveal">
               <div className="method-illustration memory-illustration">
                 <div className="memory-orbit" />
-                <span className="memory-point point-one">Hoy</span>
-                <span className="memory-point point-two">Después</span>
+                <span className="memory-point point-one">{t("Hoy")}</span>
+                <span className="memory-point point-two">{t("Después")}</span>
                 <div className="memory-center">
                   <Sprout size={43} />
                 </div>
                 <span className="memory-check">
                   <Check size={22} />
                 </span>
-                <span className="memory-label">Volver también es avanzar.</span>
+                <span className="memory-label">
+                  {t("Volver también es avanzar.")}
+                </span>
               </div>
-              <span className="step-label">02 · RECUERDA</span>
-              <h3>Que se quede contigo.</h3>
+              <span className="step-label">{t("02 · RECUERDA")}</span>
+              <h3>{t("Que se quede contigo.")}</h3>
               <p>
-                Repasa en el momento adecuado. La repetición espaciada se adapta
-                a lo que vas recordando.
+                {" "}
+                {t(
+                  "Repasa en el momento adecuado. La repetición espaciada se adapta a lo que vas recordando.",
+                )}{" "}
               </p>
             </article>
             <article className="method-item reveal">
               <div className="method-illustration pause-illustration">
                 <div className="resume-card">
                   <span>
-                    <BookOpen size={20} /> Tu momento de inglés
+                    <BookOpen size={20} /> {t("Tu momento de inglés")}{" "}
                   </span>
                   <strong>
-                    ¿Seguimos donde
-                    <br />
-                    lo dejamos?
+                    {" "}
+                    {t("¿Seguimos donde")} <br /> {t("lo dejamos?")}{" "}
                   </strong>
                   <span className="resume-pill">
-                    Continuar <ArrowRight size={15} />
+                    {" "}
+                    {t("Continuar")} <ArrowRight size={15} />
                   </span>
                 </div>
                 <span className="pause-moon">
                   <Moon size={25} />
                 </span>
               </div>
-              <span className="step-label">03 · HAZLO TUYO</span>
-              <h3>Tu vida no se pausa.</h3>
+              <span className="step-label">{t("03 · HAZLO TUYO")}</span>
+              <h3>{t("Tu vida no se pausa.")}</h3>
               <p>
-                Deja una actividad a medias y vuelve después. Loti te guarda el
-                lugar, no te pide explicaciones.
+                {" "}
+                {t(
+                  "Deja una actividad a medias y vuelve después. Loti te guarda el lugar, no te pide explicaciones.",
+                )}{" "}
               </p>
             </article>
           </div>
@@ -588,34 +629,38 @@ export default function App() {
           <div className="wrap demo-layout">
             <div className="demo-copy reveal">
               <span className="eyebrow">
-                02 / MENOS CONTARTE. MÁS PROBARLO.
+                {" "}
+                {t("02 / MENOS CONTARTE. MÁS PROBARLO.")}{" "}
               </span>
               <h2>
-                Tu primera palabra
-                <br />
-                está a <em>un clic.</em>
+                {" "}
+                {t("Tu primera palabra")} <br /> {t("está a")}{" "}
+                <em>{t("un clic.")}</em>
               </h2>
               <p>
-                No necesitas una cuenta ni un gran propósito de año nuevo. Solo
-                un poquito de curiosidad.
+                {" "}
+                {t(
+                  "No necesitas una cuenta ni un gran propósito de año nuevo. Solo un poquito de curiosidad.",
+                )}{" "}
               </p>
               <div className="demo-note">
                 <LotiImage
-                  src={loti("expression-wink")}
+                  name="expression-wink"
                   alt=""
                   width="96"
                   height="96"
                   loading="lazy"
                 />
                 <span>
-                  «Si te equivocas,
-                  <br />
-                  lo intentamos otra vez.»<small>— Loti, tu compañero</small>
+                  {" "}
+                  {t("«Si te equivocas,")} <br />{" "}
+                  {t("lo intentamos otra vez.»")}
+                  <small>{t("— Loti, tu compañero")}</small>
                 </span>
               </div>
               <span className="demo-detail">
-                <WifiOff size={17} /> Esta práctica funciona sin enviar tus
-                respuestas.
+                <WifiOff size={17} />{" "}
+                {t("Esta práctica funciona sin enviar tus respuestas.")}{" "}
               </span>
             </div>
             <div className="reveal">
@@ -626,40 +671,35 @@ export default function App() {
         <section className="app-section wrap section-space">
           <div className="app-preview reveal">
             <div className="app-halo" />
-            <div className="phone">
-              <div className="phone-camera" />
-              <img
-                key={activeScreen.file}
-                src={`/app/${activeScreen.file}.png`}
-                alt={`Captura real de Lextli: ${activeScreen.name}`}
-                width="412"
-                height="892"
-                loading="lazy"
-              />
-            </div>
+            <PixelPreview
+              src={`/app/${activeScreen.file}.png`}
+              alt={`${t("Captura real de Lextli:")} ${t(activeScreen.name)}`}
+            />
             <span className="app-caption">
-              Así se ve Lextli · Capturas de la beta
+              {" "}
+              {locale === "es"
+                ? t("Así se ve Lextli · Capturas de la beta")
+                : t("Capturas de la beta en español")}{" "}
             </span>
             <span className="offline-note">
               <WifiOff size={22} />
               <strong>
-                Modo avión.
-                <br />
-                Mundo abierto.
+                {" "}
+                {t("Modo avión.")} <br /> {t("Mundo abierto.")}{" "}
               </strong>
             </span>
           </div>
           <div className="app-copy reveal">
-            <span className="eyebrow">03 / CABE EN TU DÍA</span>
+            <span className="eyebrow">{t("03 / CABE EN TU DÍA")}</span>
             <h2>
-              Un pequeño hábito.
-              <br />
-              <em>Muy a tu manera.</em>
+              {" "}
+              {t("Un pequeño hábito.")} <br />
+              <em>{t("Muy a tu manera.")}</em>
             </h2>
             <div
               className="screen-tabs"
               role="tablist"
-              aria-label="Explora la app"
+              aria-label={t("Explora la app")}
             >
               {screens.map((item, i) => (
                 <button
@@ -686,7 +726,7 @@ export default function App() {
                   }}
                   onClick={() => setScreen(i)}
                 >
-                  {item.name}
+                  {t(item.name)}
                 </button>
               ))}
             </div>
@@ -695,25 +735,26 @@ export default function App() {
               role="tabpanel"
               aria-labelledby={`tab-${screen}`}
             >
-              <h3>{activeScreen.title}</h3>
-              <p>{activeScreen.description}</p>
+              <h3>{t(activeScreen.title)}</h3>
+              <p>{t(activeScreen.description)}</p>
             </div>
             <ul className="feature-list">
               <li>
-                <Check /> Más de 3,000 entradas de vocabulario
+                <Check /> {t("Más de 3,000 entradas de vocabulario")}{" "}
               </li>
               <li>
-                <Check /> Siete formas de practicar
+                <Check /> {t("Siete formas de practicar")}{" "}
               </li>
               <li>
-                <Check /> Modo claro y oscuro
+                <Check /> {t("Modo claro y oscuro")}{" "}
               </li>
               <li>
-                <Check /> Tu práctica descargada, también sin red
+                <Check /> {t("Tu práctica descargada, también sin red")}{" "}
               </li>
             </ul>
             <a href="#preguntas" className="inline-link">
-              Lo que necesitas saber <ArrowRight size={18} />
+              {" "}
+              {t("Lo que necesitas saber")} <ArrowRight size={18} />
             </a>
           </div>
         </section>
@@ -721,22 +762,24 @@ export default function App() {
           <div className="wrap loti-layout">
             <div className="loti-copy reveal">
               <span className="eyebrow">
-                UN AJOLOTE. MUCHAS GANAS DE ACOMPAÑARTE.
+                {" "}
+                {t("UN AJOLOTE. MUCHAS GANAS DE ACOMPAÑARTE.")}{" "}
               </span>
               <h2>
-                Mucho gusto.
-                <br />
-                <em>Poquita prisa.</em>
+                {" "}
+                {t("Mucho gusto.")} <br />
+                <em>{t("Poquita prisa.")}</em>
               </h2>
               <p>
-                Soy Loti. Vengo de un mundo de chinampas, libros y pequeñas
-                historias. Y creo que aprender algo nuevo se disfruta más en
-                buena compañía.
+                {" "}
+                {t(
+                  "Soy Loti. Vengo de un mundo de chinampas, libros y pequeñas historias. Y creo que aprender algo nuevo se disfruta más en buena compañía.",
+                )}{" "}
               </p>
-              <p className="loti-signature">¿Qué hacemos hoy?</p>
+              <p className="loti-signature">{t("¿Qué hacemos hoy?")}</p>
               <div
                 className="accessory-picker"
-                aria-label="Elige el accesorio de Loti"
+                aria-label={t("Elige el accesorio de Loti")}
               >
                 {[
                   { id: "accessory-book", name: "Leemos" },
@@ -748,7 +791,7 @@ export default function App() {
                     aria-pressed={accessory === item.id}
                     onClick={() => setAccessory(item.id)}
                   >
-                    {item.name}
+                    {t(item.name)}
                     {accessory === item.id && <Check size={15} />}
                   </button>
                 ))}
@@ -759,55 +802,55 @@ export default function App() {
               <span className="loti-spark">✳</span>
               <LotiImage
                 key={accessory}
-                src={loti(accessory)}
-                alt={`Loti: ${accessory === "accessory-book" ? "con su libro" : accessory === "accessory-headphones" ? "escuchando con audífonos" : "con flores de cempasúchil"}`}
+                name={accessory}
+                alt={`Loti: ${accessory === "accessory-book" ? t("con su libro") : accessory === "accessory-headphones" ? t("escuchando con audífonos") : t("con flores de cempasúchil")}`}
                 width="420"
                 height="420"
                 loading="lazy"
               />
               <span className="loti-stage-note">
-                Mexicano de origen.
-                <br />
-                Curioso por naturaleza.
+                {" "}
+                {t("Mexicano de origen.")} <br />{" "}
+                {t("Curioso por naturaleza.")}{" "}
               </span>
             </div>
           </div>
         </section>
         <section className="manifesto wrap section-space reveal">
-          <span className="eyebrow">NUESTRA PROMESA</span>
+          <span className="eyebrow">{t("NUESTRA PROMESA")}</span>
           <h2>
-            Tu aprendizaje no tiene
-            <br />
-            <em>por qué pasar por caja.</em>
+            {" "}
+            {t("Tu aprendizaje no tiene")} <br />
+            <em>{t("por qué pasar por caja.")}</em>
           </h2>
           <p>
-            Practicar, equivocarte, volver, avanzar.
-            <br />
-            Eso es tuyo. Y queremos que siga siendo así.
+            {" "}
+            {t("Practicar, equivocarte, volver, avanzar.")} <br />{" "}
+            {t("Eso es tuyo. Y queremos que siga siendo así.")}{" "}
           </p>
           <div className="manifesto-values">
             <span>
-              <Heart /> Sin pagar para avanzar
+              <Heart /> {t("Sin pagar para avanzar")}{" "}
             </span>
             <span>
-              <WifiOff /> Sin cobrarte por aprender offline
+              <WifiOff /> {t("Sin cobrarte por aprender offline")}{" "}
             </span>
             <span>
-              <Sprout /> Sin presión por ser perfecto
+              <Sprout /> {t("Sin presión por ser perfecto")}{" "}
             </span>
           </div>
         </section>
         <section id="preguntas" className="faq-section wrap section-space">
           <div className="faq-heading reveal">
-            <span className="eyebrow">ANTES DE EMPEZAR</span>
+            <span className="eyebrow">{t("ANTES DE EMPEZAR")}</span>
             <h2>
-              La curiosidad
-              <br />
-              <em>es bienvenida.</em>
+              {" "}
+              {t("La curiosidad")} <br />
+              <em>{t("es bienvenida.")}</em>
             </h2>
             <LotiImage
-              src={loti("expression-thinking")}
-              alt="Loti pensando"
+              name="expression-thinking"
+              alt={t("Loti pensando")}
               width="150"
               height="150"
               loading="lazy"
@@ -815,12 +858,12 @@ export default function App() {
           </div>
           <div className="faq-list reveal">
             {faqs.map(([q, a]) => (
-              <details key={q}>
+              <details key={t(q)}>
                 <summary>
-                  {q}
+                  {t(q)}
                   <ChevronDown size={21} />
                 </summary>
-                <p>{a}</p>
+                <p>{t(a)}</p>
               </details>
             ))}
           </div>
@@ -828,18 +871,20 @@ export default function App() {
         <section className="closing-section">
           <div className="wrap closing-inner reveal">
             <span className="closing-flower">✳</span>
-            <span className="eyebrow">LO PEQUEÑO TAMBIÉN CRECE.</span>
+            <span className="eyebrow">{t("LO PEQUEÑO TAMBIÉN CRECE.")}</span>
             <h2>
-              Tu próximo «hello»
-              <br />
-              puede abrir <em>mucho.</em>
+              {" "}
+              {t("Tu próximo «hello»")} <br /> {t("puede abrir")}{" "}
+              <em>{t("mucho.")}</em>
             </h2>
-            <p>Empieza por una palabra. Lo demás, paso a paso.</p>
+            <p>{t("Empieza por una palabra. Lo demás, paso a paso.")}</p>
             <a href="#prueba" className="button cream">
-              Vamos a empezar <ArrowRight size={20} />
+              {" "}
+              {t("Vamos a empezar")} <ArrowRight size={20} />
             </a>
             <span className="closing-small">
-              Con cariño, desde México. Con Loti, a donde quieras.
+              {" "}
+              {t("Con cariño, desde México. Con Loti, a donde quieras.")}{" "}
             </span>
           </div>
         </section>
@@ -851,35 +896,38 @@ export default function App() {
               src="/brand/wordmark.svg"
               width="118"
               height="44"
-              alt="Lextli, volver al inicio"
+              alt={t("Lextli, volver al inicio")}
             />
           </a>
-          <p>Tu inglés. Tu ritmo. Tu mundo.</p>
+          <p>{t("Tu inglés. Tu ritmo. Tu mundo.")}</p>
         </div>
         <div className="footer-links">
-          <a href="#como-funciona">Así se aprende</a>
-          <a href="#preguntas">Preguntas frecuentes</a>
+          <a href="#como-funciona">{t("Así se aprende")}</a>
+          <a href="#preguntas">{t("Preguntas frecuentes")}</a>
           <button onClick={openBeta}>
-            Estado de la beta <ArrowUpRight size={14} />
+            {" "}
+            {t("Estado de la beta")} <ArrowUpRight size={14} />
           </button>
         </div>
         <div className="footer-bottom">
           <span>
-            © {new Date().getFullYear()} Lextli · Hecho para seguir creciendo.
+            © {new Date().getFullYear()}{" "}
+            {t("Lextli · Hecho para seguir creciendo.")}{" "}
           </span>
           <button aria-pressed={!motion} onClick={() => setMotion(!motion)}>
             {motion ? <Pause size={14} /> : <Play size={14} />}{" "}
-            {motion ? "Pausar animaciones" : "Activar animaciones"}
+            {motion ? t("Pausar animaciones") : t("Activar animaciones")}
           </button>
           <span>
-            Hecho en México <Heart size={13} />
+            {" "}
+            {t("Hecho en México")} <Heart size={13} />
           </span>
         </div>
       </footer>
       <dialog
         ref={modal}
         className="beta-dialog"
-        aria-label="Estado de la beta de Lextli"
+        aria-label={t("Estado de la beta de Lextli")}
         onCancel={(e) => {
           e.preventDefault();
           closeBeta();
@@ -892,28 +940,33 @@ export default function App() {
           <button
             className="dialog-close"
             onClick={closeBeta}
-            aria-label="Cerrar"
+            aria-label={t("Cerrar")}
           >
             <X />
           </button>
           <LotiImage
-            src={loti("expression-happy")}
-            alt="Loti te da la bienvenida"
+            name="expression-happy"
+            alt={t("Loti te da la bienvenida")}
             width="135"
             height="135"
           />
-          <span className="eyebrow">ESTAMOS CULTIVANDO ALGO BONITO</span>
+          <span className="eyebrow">{t("ESTAMOS CULTIVANDO ALGO BONITO")}</span>
           <h2>
-            Nos vemos
-            <br />
-            <em>muy pronto.</em>
+            {" "}
+            {t("Nos vemos")} <br />
+            <em>{t("muy pronto.")}</em>
           </h2>
           <p>
-            Lextli está en beta para Android. La descarga pública todavía no
-            está disponible aquí.
+            {" "}
+            {t(
+              "Lextli está en beta para Android. La descarga pública todavía no está disponible aquí.",
+            )}{" "}
           </p>
           <p>
-            Puedes conocer la experiencia con tres palabras, sin registrarte.
+            {" "}
+            {t(
+              "Puedes conocer la experiencia con tres palabras, sin registrarte.",
+            )}{" "}
           </p>
           <button
             className="button primary"
@@ -924,9 +977,10 @@ export default function App() {
                 ?.scrollIntoView({ behavior: motion ? "smooth" : "instant" });
             }}
           >
-            Probar la práctica <ArrowRight size={18} />
+            {" "}
+            {t("Probar la práctica")} <ArrowRight size={18} />
           </button>
-          <small>Sin lista de espera ni datos personales.</small>
+          <small>{t("Sin lista de espera ni datos personales.")}</small>
         </div>
       </dialog>
     </MotionContext.Provider>
